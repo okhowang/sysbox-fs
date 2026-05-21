@@ -66,6 +66,10 @@ var monitoredSyscalls = []string{
 	"listxattr",
 	"llistxattr",
 	"flistxattr",
+	"statfs",
+	"statfs64",
+	"fstatfs",
+	"fstatfs64",
 }
 
 // Seccomp's syscall-monitoring/trapping service struct. External packages
@@ -551,6 +555,12 @@ func (t *syscallTracer) processSyscall(
 
 	case "flistxattr":
 		resp, err = t.processFlistxattr(req, fd, cntr)
+
+	case "statfs", "statfs64":
+		resp, err = t.processStatfs(req, fd, cntr, syscallName)
+
+	case "fstatfs", "fstatfs64":
+		resp, err = t.processFstatfs(req, fd, cntr, syscallName)
 
 	default:
 		logrus.Warnf("Unsupported syscall notification received (%v) on fd %d, pid %d, cntr %s",
